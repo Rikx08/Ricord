@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricord</title>
+    {% load static %}
+   <link rel="stylesheet" href="{% static 'main/css/main_style.css' %}" >
+</head>
+<body>
+    <div class="container">
+        <aside class="servers">
+            <div class="server">🏠</div>
+            <div class="server">🎮</div>
+            <div class="server">🎵</div>
+            <div class="server">💻</div>
+        </aside>
+        <aside class="channels">
+            <h2>Каналы</h2>
+            <ul>
+                <li># общий</li>
+                <li># мемы</li>
+                <li># музыка</li>
+                <li># кодинг</li>
+            </ul>
+            <div class="voice-chat">
+                <div class="title">Голосовая связь под</div>
+                <div class="subtitle">сесбийский лекс / УТОПИЯ</div>
+                <div class="voice-controls">
+                    <button>✏️</button>
+                    <button>📷</button>
+                    <button>☀️</button>
+                </div>
+            </div>
+            <div class="user-panel">
+                <div class="user-info">
+                    <img src="avatar.jpg" alt="Avatar">
+                    <div class="username">_rikx</div>
+                </div>
+                <div class="user-controls">
+                    <button>💀</button>
+                    <button>🎤</button>
+                    <button>⚙️</button>
+                </div>
+            </div>
+        </aside>
+        <main class="chat">
+            <header>Общий чат</header>
+            <section class="messages">
+                <div class="message"><strong>Пользователь1:</strong> Привет!</div>
+                <div class="message"><strong>Пользователь2:</strong> Как дела?</div>
+            </section>
+            <footer>
+                <input type="text" placeholder="Написать сообщение...">
+            </footer>
+        </main>
+        <aside class="users">
+            <h2>Пользователи</h2>
+            <ul>
+                <li>Пользователь1</li>
+                <li>Пользователь2</li>
+                <li>Пользователь3</li>
+            </ul>
+        </aside>
+    </div>
+</body>
+</html>
