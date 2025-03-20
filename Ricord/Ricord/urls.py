@@ -17,12 +17,12 @@ Including another URLconf
 
 
 from django.contrib import admin
+from django.shortcuts import redirect
 from django.urls import path,include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("registration",include("registration.urls")),
-    path("",include("main.urls")),
-    path("entrance", include("entrance.urls")),
-    path("accounts/",  include("django.contrib.auth.urls"))
+    path('account/', include('account.urls')),  # Подключаем маршруты аутентификации
+    path('', lambda request: redirect('/account/login/')),  # Редирект на вход
+    path('main', include('main.urls'), name="home"),
 ]

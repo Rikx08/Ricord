@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ricord{% endblock %}</title>
+    <link rel="stylesheet" href="{% static '/css/style.css' %}">
+</head>
+<body>
+<!--    <nav>-->
+<!--        <a href="{% url 'register' %}">Регистрация</a> |-->
+<!--        <a href="{% url 'login' %}">Вход</a>-->
+<!--        {% if user.is_authenticated %}-->
+<!--            | <a href="{% url 'logout' %}">Выход</a>-->
+<!--        {% endif %}-->
+<!--    </nav>-->
+    <hr>
+    <div>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
