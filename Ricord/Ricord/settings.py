@@ -34,8 +34,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "main",
-    "entrance",
-    "registration",
     "account",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -57,7 +55,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+# Отключаем кэш для залогиненных пользователей
+CACHE_MIDDLEWARE_SECONDS = 0
+CACHE_MIDDLEWARE_KEY_PREFIX = ""
 
 ROOT_URLCONF = 'Ricord.urls'
 

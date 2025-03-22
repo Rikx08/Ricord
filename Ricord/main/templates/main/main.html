@@ -21,7 +21,7 @@
                 <li># общий</li>
                 <li># мемы</li>
                 <li># музыка</li>
-                <li># кодинг</li>
+                <li># булинг</li>
             </ul>
             <div class="voice-chat">
                 <div class="title">Голосовая связь под</div>
@@ -34,12 +34,19 @@
             </div>
             <div class="user-panel">
                 <div class="user-info">
-                    <img src="avatar.jpg" alt="Avatar">
-                    <div class="username">_rikx</div>
+                    <button class="user-button" onclick="location.href='{% url 'profile' %}'">
+                    <img src="{% static 'main/img/base_avatar.jpg' %}" alt="Аватар">
+                    <div class="username">{{ user.username }}</div>
+                    </button>
                 </div>
                 <div class="user-controls">
                     <button>💀</button>
-                    <button>🎤</button>
+
+                    <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">🎤</button>
+                    </form>
+
                     <button>⚙️</button>
                 </div>
             </div>

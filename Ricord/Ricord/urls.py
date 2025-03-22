@@ -25,4 +25,5 @@ urlpatterns = [
     path('account/', include('account.urls')),  # Подключаем маршруты аутентификации
     path('', lambda request: redirect('/account/login/')),  # Редирект на вход
     path('main', include('main.urls'), name="home"),
+
 ]
