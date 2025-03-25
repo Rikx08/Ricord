@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ricord</title>
     {% load static %}
-   <link rel="stylesheet" href="{% static 'main/css/main_style.css' %}" >
+   <link rel="stylesheet" href="{% static 'main/css/main_channel_style.css' %}" >
 </head>
 <body>
     <div class="container">
@@ -17,12 +17,13 @@
         </aside>
         <aside class="channels">
             <h2>Каналы</h2>
-            <ul>
-                <li># общий</li>
-                <li># мемы</li>
-                <li># музыка</li>
-                <li># кодинг</li>
-            </ul>
+            <nav>
+                <ul>
+                    <li class="active"><img src="user1.jpg" alt=""> Друзья</li>
+                    <li><img src="nitro.jpg" alt=""> Nitro</li>
+                    <li><img src="store.jpg" alt=""> Магазин</li>
+                </ul>
+            </nav>
             <div class="voice-chat">
                 <div class="title">Голосовая связь под</div>
                 <div class="subtitle">сесбийский лекс / УТОПИЯ</div>
@@ -34,26 +35,48 @@
             </div>
             <div class="user-panel">
                 <div class="user-info">
-                    <img src="avatar.jpg" alt="Avatar">
-                    <div class="username">_rikx</div>
+                    <button class="user-button" onclick="location.href='{% url 'profile' %}'">
+                    <img src="{% static 'main/img/base_avatar.jpg' %}" alt="Аватар">
+                    <div class="username">{{ user.username }}</div>
+                    </button>
                 </div>
                 <div class="user-controls">
                     <button>💀</button>
-                    <button>🎤</button>
+
+                    <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit">🎤</button>
+                    </form>
+
                     <button>⚙️</button>
                 </div>
             </div>
         </aside>
-        <main class="chat">
-            <header>Общий чат</header>
-            <section class="messages">
-                <div class="message"><strong>Пользователь1:</strong> Привет!</div>
-                <div class="message"><strong>Пользователь2:</strong> Как дела?</div>
+        <main class="content">
+            <header>
+                <input type="text" placeholder="Найти или начать беседу">
+                <button>Добавить в друзья</button>
+            </header>
+            <section class="friends-list">
+                <div class="friend online"><img src="avatar1.jpg" alt=""> emod3vochka</div>
+                <div class="friend offline"><img src="avatar2.jpg" alt=""> K_ofe</div>
+                <div class="friend online"><img src="avatar3.jpg" alt=""> Sokolova</div>
+                <div class="friend online"><img src="avatar4.jpg" alt=""> Стас Шишов</div>
             </section>
-            <footer>
-                <input type="text" placeholder="Написать сообщение...">
-            </footer>
+            <div class="active-contacts">
+                <h3>Активные контакты</h3>
+                <p>Стас Шишов, emod3vochka и ещё 1</p>
+            </div>
         </main>
+    </div>
+    <script>
+        document.querySelector("input").addEventListener("input", function() {
+            let filter = this.value.toLowerCase();
+            document.querySelectorAll(".friend").forEach(friend => {
+                friend.style.display = friend.textContent.toLowerCase().includes(filter) ? "block" : "none";
+            });
+        });
+    </script>
         <aside class="users">
             <h2>Пользователи</h2>
             <ul>
@@ -65,3 +88,11 @@
     </div>
 </body>
 </html>
+
+
+
+
+
+
+
+
