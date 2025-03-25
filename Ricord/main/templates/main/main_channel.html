@@ -17,13 +17,12 @@
         </aside>
         <aside class="channels">
             <h2>Каналы</h2>
-            <nav>
-                <ul>
-                    <li class="active"><img src="user1.jpg" alt=""> Друзья</li>
-                    <li><img src="nitro.jpg" alt=""> Nitro</li>
-                    <li><img src="store.jpg" alt=""> Магазин</li>
-                </ul>
-            </nav>
+            <ul>
+                <li># общий</li>
+                <li># мемы</li>
+                <li># музыка</li>
+                <li># булинг</li>
+            </ul>
             <div class="voice-chat">
                 <div class="title">Голосовая связь под</div>
                 <div class="subtitle">сесбийский лекс / УТОПИЯ</div>
@@ -52,31 +51,16 @@
                 </div>
             </div>
         </aside>
-        <main class="content">
-            <header>
-                <input type="text" placeholder="Найти или начать беседу">
-                <button>Добавить в друзья</button>
-            </header>
-            <section class="friends-list">
-                <div class="friend online"><img src="avatar1.jpg" alt=""> emod3vochka</div>
-                <div class="friend offline"><img src="avatar2.jpg" alt=""> K_ofe</div>
-                <div class="friend online"><img src="avatar3.jpg" alt=""> Sokolova</div>
-                <div class="friend online"><img src="avatar4.jpg" alt=""> Стас Шишов</div>
+        <main class="chat">
+            <header>Общий чат</header>
+            <section class="messages">
+                <div class="message"><strong>Пользователь1:</strong> Привет!</div>
+                <div class="message"><strong>Пользователь2:</strong> Как дела?</div>
             </section>
-            <div class="active-contacts">
-                <h3>Активные контакты</h3>
-                <p>Стас Шишов, emod3vochka и ещё 1</p>
-            </div>
+            <footer>
+                <input type="text" placeholder="Написать сообщение...">
+            </footer>
         </main>
-    </div>
-    <script>
-        document.querySelector("input").addEventListener("input", function() {
-            let filter = this.value.toLowerCase();
-            document.querySelectorAll(".friend").forEach(friend => {
-                friend.style.display = friend.textContent.toLowerCase().includes(filter) ? "block" : "none";
-            });
-        });
-    </script>
         <aside class="users">
             <h2>Пользователи</h2>
             <ul>
@@ -88,11 +72,3 @@
     </div>
 </body>
 </html>
-
-
-
-
-
-
-
-
