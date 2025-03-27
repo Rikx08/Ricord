@@ -22,8 +22,11 @@
                     <li class="active"><img src="user1.jpg" alt=""> Друзья</li>
                     <li><img src="nitro.jpg" alt=""> Nitro</li>
                     <li><img src="store.jpg" alt=""> Магазин</li>
+                    <div class="line"></div>
                 </ul>
             </nav>
+
+        <div class="nav_niz">
             <div class="voice-chat">
                 <div class="title">Голосовая связь под</div>
                 <div class="subtitle">сесбийский лекс / УТОПИЯ</div>
@@ -36,7 +39,7 @@
             <div class="user-panel">
                 <div class="user-info">
                     <button class="user-button" onclick="location.href='{% url 'profile' %}'">
-                    <img src="{% static 'main/img/base_avatar.jpg' %}" alt="Аватар">
+                    <img src="{% static 'media/avatars/default.jpg' %}" alt="Аватар">
                     <div class="username">{{ user.username }}</div>
                     </button>
                 </div>
@@ -51,6 +54,7 @@
                     <button>⚙️</button>
                 </div>
             </div>
+        </div>
         </aside>
         <main class="content">
             <header>
@@ -63,10 +67,7 @@
                 <div class="friend online"><img src="avatar3.jpg" alt=""> Sokolova</div>
                 <div class="friend online"><img src="avatar4.jpg" alt=""> Стас Шишов</div>
             </section>
-            <div class="active-contacts">
-                <h3>Активные контакты</h3>
-                <p>Стас Шишов, emod3vochka и ещё 1</p>
-            </div>
+
         </main>
     </div>
     <script>
