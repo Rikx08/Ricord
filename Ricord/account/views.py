@@ -30,3 +30,24 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect(reverse('login'))  # После выхода направляем на страницу входа
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import AvatarUploadForm
+from .models import Profile
+
+
+@login_required
+def profile(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = AvatarUploadForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = AvatarUploadForm(instance=profile)
+
+    return render(request, 'main/profile.html', {'form': form, 'profile': profile})

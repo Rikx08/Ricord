@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ricord</title>
     {% load static %}
-   <link rel="stylesheet" href="{% static 'main/css/main_channel_style.css' %}" >
+   <link rel="stylesheet" href="{% static 'main/css/main_style.css' %}" >
 </head>
 <body>
     <div class="container">
@@ -44,7 +44,7 @@
                     <button>💀</button>
 
                     <form action="{% url 'logout' %}" method="post">
-                    {% csrf_token %}
+                        {% csrf_token %}
                     <button type="submit">🎤</button>
                     </form>
 
