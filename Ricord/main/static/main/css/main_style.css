@@ -66,6 +66,7 @@ body {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    position: relative;
 }
 .voice-chat {
     background-color: #40444b;
@@ -115,18 +116,19 @@ body {
     align-items: center;
     justify-content: space-between;
     background-color: #292b2f;
-    padding: 8px; /* Чуть уменьшил padding */
+    padding: 8px;
     border-radius: 5px;
+    margin-top: auto; /* Выталкивает панель вниз */
 }
 
 .user-info {
     display: flex;
     align-items: center;
-    gap: 6px; /* Уменьшенный отступ между аватаркой и ником */
+    gap: 6px;
 }
 
 .user-info img {
-    width: 32px; /* Сделал аватар чуть меньше */
+    width: 32px;
     height: 32px;
     border-radius: 10%;
 }
@@ -138,20 +140,165 @@ body {
 
 .user-controls {
     display: flex;
-    gap: 4px; /* Уменьшенный отступ между кнопками */
+    gap: 4px;
 }
 
-.channels h2, .users h2 {
-    font-size: 16px;
-    margin-bottom: 10px;
+.friends-list-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #2f3136; /* Темный фон */
+    padding: 7px;
+    border-radius: 5px;
+    overflow-y: auto; /* Разрешаем прокрутку */
+    scrollbar-width: thin; /* Уменьшаем ширину скролла */
+    scrollbar-color: #5865F2 #2f3136; /* Цвет полосы прокрутки */
 }
-.channels ul, .users ul {
-    list-style: none;
+
+/* Настройки скроллбара для браузеров на основе WebKit */
+.friends-list-container::-webkit-scrollbar {
+    width: 6px; /* Узкий скроллбар */
 }
-.channels li, .users li {
-    padding: 5px 0;
+
+.friends-list-container::-webkit-scrollbar-thumb {
+    background-color: #5865F2; /* Синий ползунок */
+    border-radius: 3px;
+}
+
+.friends-list-container::-webkit-scrollbar-track {
+    background: #2f3136; /* Темный фон */
+}
+
+/* Друзья в списке */
+.friend {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Отступ между аватаром и именем */
+    padding: 10px;
+    background-color: #36393f;
+    border-radius: 5px;
+    transition: background-color 0.2s, transform 0.2s;
     cursor: pointer;
 }
+
+/* Добавим эффект при нажатии */
+.friend:active {
+    transform: scale(0.95);
+    background-color: #292b2f;
+}
+
+/* Добавим иконку перед именем друга */
+.friend::before {
+    font-size: 16px;
+}
+
+/* Аватарки друзей */
+.friend img {
+    width: 40px;
+    height: 40px;
+    border-radius: 20%;
+}
+
+/* Стили для статуса онлайн */
+.friend.online {
+    color: #43b581;
+}
+
+/* Стили для статуса оффлайн */
+.friend.offline {
+    color: #747f8d;
+}
+
+/* Эффект при наведении */
+.friend:hover {
+    background-color: #2f3136;
+    transform: scale(1.05);
+}
+
+/* Стили для самого списка */
+.friends-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.friend {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    background-color: #36393f;
+}
+
+.friend.online {
+    color: #43b581;
+}
+
+.friend.offline {
+    color: #747f8d;
+}
+
+.friends-list {
+    display: flex;
+    flex-direction: column;
+}
+.friend {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    background-color: #36393f;
+}
+.friend.online {
+    color: #43b581;
+}
+.friend.offline {
+    color: #747f8d;
+}
+.channels li {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #292b2f;
+    border-radius: 8px;
+    color: #b9bbbe;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-out forwards; /* Анимация появления */
+}
+
+.channels li:hover {
+    background-color: #40444b;
+    transform: scale(1.05); /* Немного увеличиваем элемент при наведении */
+}
+
+.channels li img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+    border-radius: 20%;
+}
+
+.channels li.active {
+    background-color: #5865F2;
+    color: white;
+    font-weight: bold;
+}
+
+.channels li.active:hover {
+    background-color: #4752c4;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+        transform: translateX(-20px); /* Начальная позиция */
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0); /* Конечная позиция */
+    }
+}
+
 .chat {
     flex: 1;
     display: flex;
@@ -233,19 +380,28 @@ button {
   width: 100%; /* Ширина полоски */
   border-radius: 25px;
 }
-.friends-list {
-    display: flex;
-    flex-direction: column;
+
+
+
+/* Стили для самого скролл-бара */
+.friends-list-container::-webkit-scrollbar {
+    width: 8px; /* Ширина скролл-бара */
 }
-.friend {
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    background-color: #36393f;
+
+/* Стили для бегунка скролл-бара */
+.friends-list-container::-webkit-scrollbar-thumb {
+    background-color: #5865F2; /* Цвет бегунка */
+    border-radius: 10px; /* Закругляем углы бегунка */
+    border: 2px solid #202225; /* Добавляем обводку */
 }
-.friend.online {
-    color: #43b581;
+
+/* Стили для дорожки скролл-бара */
+.friends-list-container::-webkit-scrollbar-track {
+    background-color: #2f3136; /* Цвет дорожки */
+    border-radius: 10px; /* Закругляем углы дорожки */
 }
-.friend.offline {
-    color: #747f8d;
+
+/* Стили при наведении на бегунок */
+.friends-list-container::-webkit-scrollbar-thumb:hover {
+    background-color: #4752c4; /* Изменяем цвет бегунка при наведении */
 }

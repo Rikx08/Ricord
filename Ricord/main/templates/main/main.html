@@ -16,16 +16,36 @@
             <div class="server">💻</div>
         </aside>
         <aside class="channels">
-            <h2>Каналы</h2>
-            <nav>
+            <h2> Дом </h2>
+            <nav class="friends">
                 <ul>
-                    <li class="active"><img src="user1.jpg" alt=""> Друзья</li>
-                    <li><img src="nitro.jpg" alt=""> Nitro</li>
-                    <li><img src="store.jpg" alt=""> Магазин</li>
-                    <div class="line"></div>
+                    <li class="active"><img src="{% static 'media/ico/friends_ico.png' %}"alt=""> Друзья</li>
+                    <li><img src="{% static 'media/ico/steam.png' %}" alt=""> Nitro</li>
+                    <li><img src="{% static 'media/ico/shop.png' %}" alt=""> Магазин</li>
+
+
                 </ul>
             </nav>
-
+                <div class="friends-list-container">
+                    <section class="friends-list">
+                        <div class="friend online"><img src="avatar1.jpg" alt=""> emod3vochka</div>
+                        <div class="friend offline"><img src="avatar2.jpg" alt=""> K_ofe</div>
+                        <div class="friend online"><img src="avatar3.jpg" alt=""> Sokolova</div>
+                        <div class="friend online"><img src="avatar4.jpg" alt=""> Стас Шишов</div>
+                        <div class="friend online"><img src="avatar1.jpg" alt=""> emod3vochka</div>
+                        <div class="friend offline"><img src="avatar2.jpg" alt=""> K_ofe</div>
+                        <div class="friend online"><img src="avatar3.jpg" alt=""> Sokolova</div>
+                        <div class="friend online"><img src="avatar4.jpg" alt=""> Стас Шишов</div>
+                        <div class="friend online"><img src="avatar1.jpg" alt=""> emod3vochka</div>
+                        <div class="friend offline"><img src="avatar2.jpg" alt=""> K_ofe</div>
+                        <div class="friend online"><img src="avatar3.jpg" alt=""> Sokolova</div>
+                        <div class="friend online"><img src="avatar4.jpg" alt=""> Стас Шишов</div>
+                        <div class="friend online"><img src="avatar1.jpg" alt=""> emod3vochka</div>
+                        <div class="friend offline"><img src="avatar2.jpg" alt=""> K_ofe</div>
+                        <div class="friend online"><img src="avatar3.jpg" alt=""> Sokolova</div>
+                        <div class="friend online"><img src="avatar4.jpg" alt=""> Стас Шишов</div>
+                    </section>
+                </div>
         <div class="nav_niz">
             <div class="voice-chat">
                 <div class="title">Голосовая связь под</div>
@@ -78,14 +98,7 @@
             });
         });
     </script>
-        <aside class="users">
-            <h2>Пользователи</h2>
-            <ul>
-                <li>Пользователь1</li>
-                <li>Пользователь2</li>
-                <li>Пользователь3</li>
-            </ul>
-        </aside>
+
     </div>
 </body>
 </html>
