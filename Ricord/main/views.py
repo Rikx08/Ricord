@@ -6,3 +6,6 @@ def main(request):
 @login_required
 def profile(request):
     return render(request,"main/profile.html")
+
+def channel(request):
+    return render(request,"main/main_channel.html")

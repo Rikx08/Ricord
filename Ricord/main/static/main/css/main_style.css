@@ -220,37 +220,6 @@ body {
     flex-direction: column;
 }
 
-.friend {
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    background-color: #36393f;
-}
-
-.friend.online {
-    color: #43b581;
-}
-
-.friend.offline {
-    color: #747f8d;
-}
-
-.friends-list {
-    display: flex;
-    flex-direction: column;
-}
-.friend {
-    padding: 10px;
-    border-radius: 5px;
-    margin-bottom: 5px;
-    background-color: #36393f;
-}
-.friend.online {
-    color: #43b581;
-}
-.friend.offline {
-    color: #747f8d;
-}
 .channels li {
     display: flex;
     align-items: center;

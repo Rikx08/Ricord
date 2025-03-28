@@ -10,10 +10,10 @@
 <body>
     <div class="container">
         <aside class="servers">
-            <div class="server">🏠</div>
+            <div class="server" onclick="location.href='{% url 'home' %}'">🏠</div>
             <div class="server">🎮</div>
             <div class="server">🎵</div>
-            <div class="server">💻</div>
+            <div class="server" onclick="location.href='{% url 'channel' %}'">💻</div>
         </aside>
         <aside class="channels">
             <h2> Дом </h2>
@@ -22,8 +22,6 @@
                     <li class="active"><img src="{% static 'media/ico/friends_ico.png' %}"alt=""> Друзья</li>
                     <li><img src="{% static 'media/ico/steam.png' %}" alt=""> Nitro</li>
                     <li><img src="{% static 'media/ico/shop.png' %}" alt=""> Магазин</li>
-
-
                 </ul>
             </nav>
                 <div class="friends-list-container">

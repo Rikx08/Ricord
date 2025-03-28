@@ -10,10 +10,10 @@
 <body>
     <div class="container">
         <aside class="servers">
-            <div class="server">🏠</div>
+            <div class="server" onclick="location.href='{% url 'home' %}'">🏠</div>
             <div class="server">🎮</div>
             <div class="server">🎵</div>
-            <div class="server">💻</div>
+            <div class="server" onclick="location.href='{% url 'channel' %}'">💻</div>
         </aside>
         <aside class="channels">
             <h2>Каналы</h2>
@@ -21,8 +21,17 @@
                 <li># общий</li>
                 <li># мемы</li>
                 <li># музыка</li>
-                <li># булинг</li>
+                <li># чатик</li>
             </ul>
+        <div class="line"></div>
+            <div class="friends-list-container">
+                    <section class="friends-list">
+                        <div class="friend online"> Основной</div>
+                        <div class="friend offline"> класика 100</div>
+                        <div class="friend online"> посиделки</div>
+                    </section>
+                </div>
+            <div class="nav_niz">
             <div class="voice-chat">
                 <div class="title">Голосовая связь под</div>
                 <div class="subtitle">сесбийский лекс / УТОПИЯ</div>
@@ -35,7 +44,7 @@
             <div class="user-panel">
                 <div class="user-info">
                     <button class="user-button" onclick="location.href='{% url 'profile' %}'">
-                    <img src="{% static 'main/img/base_avatar.jpg' %}" alt="Аватар">
+                    <img src="{% static 'media/avatars/default.jpg' %}" alt="Аватар">
                     <div class="username">{{ user.username }}</div>
                     </button>
                 </div>
@@ -43,13 +52,14 @@
                     <button>💀</button>
 
                     <form action="{% url 'logout' %}" method="post">
-                    {% csrf_token %}
+                        {% csrf_token %}
                     <button type="submit">🎤</button>
                     </form>
 
                     <button>⚙️</button>
                 </div>
             </div>
+        </div>
         </aside>
         <main class="chat">
             <header>Общий чат</header>
