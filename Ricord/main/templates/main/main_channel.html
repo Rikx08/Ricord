@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ricord</title>
     {% load static %}
-   <link rel="stylesheet" href="{% static 'main/css/main_channel_style.css' %}" >
+    <link rel="stylesheet" href="{% static 'main/css/main_channel_style.css' %}" >
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
 </head>
 <body>
     <div class="container">
@@ -64,11 +65,11 @@
         <main class="chat">
             <header>Общий чат</header>
             <section class="messages">
-                <div class="message"><strong>Пользователь1:</strong> Привет!</div>
-                <div class="message"><strong>Пользователь2:</strong> Как дела?</div>
+                <ul id="messages"></ul>
             </section>
             <footer>
-                <input type="text" placeholder="Написать сообщение...">
+                <input id="messageInput" placeholder="Введите сообщение" />
+                <button onclick="sendMessage()">Отправить</button>
             </footer>
         </main>
         <aside class="users">
@@ -80,5 +81,39 @@
             </ul>
         </aside>
     </div>
+
+    <script>
+        var socket = io('http://localhost:5000');
+
+        // Обработчик нового сообщения от сервера
+        socket.on('message', function (data) {
+            var messages = document.getElementById('messages');
+            var item = document.createElement('li');
+            item.textContent = data;
+            messages.appendChild(item);
+        });
+
+        // Функция отправки сообщения
+        function sendMessage() {
+            var messageInput = document.getElementById('messageInput');
+            var message = messageInput.value;
+
+            socket.emit('message', message);
+            // Добавляем введенное сообщение на веб-страницу
+            var messages = document.getElementById('messages');
+            var item = document.createElement('li');
+            item.textContent = 'Вы: ' + message;
+            messages.appendChild(item);
+            // Очищаем поля ввода
+            messageInput.value = '';
+        }
+    </script>
+
 </body>
 </html>
+
+
+
+
+
+
