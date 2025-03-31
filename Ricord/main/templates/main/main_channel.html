@@ -65,12 +65,12 @@
         <main class="chat">
             <header>Общий чат</header>
             <section class="messages">
-                <ul id="messages"></ul>
+                <ul id="messages" ></ul>
             </section>
-            <footer>
+            <div class="messageInput">
                 <input id="messageInput" placeholder="Введите сообщение" />
                 <button onclick="sendMessage()">Отправить</button>
-            </footer>
+            </div>
         </main>
         <aside class="users">
             <h2>Пользователи</h2>
@@ -83,14 +83,23 @@
     </div>
 
     <script>
-        var socket = io('http://localhost:5000');
-
+        var socket = io('http://localhost:5000', {
+    extraHeaders: {
+        "User-Id": {{ user.id }}
+        }
+    });
+        function scrollToBottom() {
+            var messages = document.getElementById('messages');
+            messages.scrollTop = messages.scrollHeight;
+        }
         // Обработчик нового сообщения от сервера
         socket.on('message', function (data) {
             var messages = document.getElementById('messages');
             var item = document.createElement('li');
             item.textContent = data;
             messages.appendChild(item);
+
+            scrollToBottom();
         });
 
         // Функция отправки сообщения

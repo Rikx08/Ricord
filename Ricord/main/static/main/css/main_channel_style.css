@@ -280,12 +280,11 @@ header button {
     cursor: pointer;
 }
 .messages {
-    flex: 1;
-    padding: 15px;
+    max-height: auto; /* Укажи нужную высоту */
     overflow-y: auto;
 }
-.message {
-    margin-bottom: 10px;
+.messageInput{
+    display: flex
 }
 .chat footer {
     padding: 10px;
@@ -323,25 +322,25 @@ button {
 
 
 /* Стили для самого скролл-бара */
-.friends-list-container::-webkit-scrollbar {
+.messages::-webkit-scrollbar {
     width: 8px; /* Ширина скролл-бара */
 }
 
 /* Стили для бегунка скролл-бара */
-.friends-list-container::-webkit-scrollbar-thumb {
+.messages::-webkit-scrollbar-thumb {
     background-color: #5865F2; /* Цвет бегунка */
     border-radius: 10px; /* Закругляем углы бегунка */
     border: 2px solid #202225; /* Добавляем обводку */
 }
 
 /* Стили для дорожки скролл-бара */
-.friends-list-container::-webkit-scrollbar-track {
+.messages::-webkit-scrollbar-track {
     background-color: #2f3136; /* Цвет дорожки */
     border-radius: 10px; /* Закругляем углы дорожки */
 }
 
 /* Стили при наведении на бегунок */
-.friends-list-container::-webkit-scrollbar-thumb:hover {
+.messages::-webkit-scrollbar-thumb:hover {
     background-color: #4752c4; /* Изменяем цвет бегунка при наведении */
 }
 
