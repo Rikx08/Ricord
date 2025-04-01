@@ -64,9 +64,7 @@
         </aside>
         <main class="chat">
             <header>Общий чат</header>
-            <section class="messages">
-                <ul id="messages" ></ul>
-            </section>
+            <section class="messages" id="messages"></section>
             <div class="messageInput">
                 <input id="messageInput" placeholder="Введите сообщение" />
                 <button onclick="sendMessage()">Отправить</button>
@@ -89,14 +87,41 @@
         }
     });
         function scrollToBottom() {
-            var messages = document.getElementById('messages');
+        var messages = document.getElementById('messages');
+        requestAnimationFrame(() => {
             messages.scrollTop = messages.scrollHeight;
-        }
+        });
+    }
         // Обработчик нового сообщения от сервера
         socket.on('message', function (data) {
             var messages = document.getElementById('messages');
-            var item = document.createElement('li');
-            item.textContent = data;
+            var item = document.createElement('div');
+            item.classList.add('message');
+
+            // Создаем аватар (можно заменить путь)
+            var avatar = document.createElement('img');
+            avatar.src = "{% static 'media/avatars/default.jpg' %}";
+            avatar.classList.add('avatar');
+
+            // Создаем контейнер для текста
+            var content = document.createElement('div');
+            content.classList.add('content');
+
+            // Имя пользователя
+            var username = document.createElement('div');
+            username.classList.add('username');
+            username.textContent = data.split(":")[0];
+
+            // Текст сообщения
+            var text = document.createElement('div');
+            text.classList.add('text');
+            text.textContent = data.split(":")[1];
+
+            content.appendChild(username);
+            content.appendChild(text);
+
+            item.appendChild(avatar);
+            item.appendChild(content);
             messages.appendChild(item);
 
             scrollToBottom();
@@ -105,16 +130,45 @@
         // Функция отправки сообщения
         function sendMessage() {
             var messageInput = document.getElementById('messageInput');
-            var message = messageInput.value;
+            var message = messageInput.value.trim(); // Убираем пробелы в начале и конце
+
+            if (message === "") return; // Проверка на пустое сообщение
 
             socket.emit('message', message);
-            // Добавляем введенное сообщение на веб-страницу
+
             var messages = document.getElementById('messages');
-            var item = document.createElement('li');
-            item.textContent = 'Вы: ' + message;
+            var item = document.createElement('div');
+            item.classList.add('message', 'self-message'); // Добавляем класс для своих сообщений
+
+            // Создаем аватар (можно заменить на реальный путь)
+            var avatar = document.createElement('img');
+            avatar.src = "{% static 'media/avatars/default.jpg' %}";
+            avatar.classList.add('avatar');
+
+            // Создаем контейнер для текста
+            var content = document.createElement('div');
+            content.classList.add('content');
+
+            // Имя пользователя
+            var username = document.createElement('div');
+            username.classList.add('username');
+            username.textContent = "Вы";
+
+            // Текст сообщения
+            var text = document.createElement('div');
+            text.classList.add('text');
+            text.textContent = message;
+
+            content.appendChild(username);
+            content.appendChild(text);
+
+            item.appendChild(avatar);
+            item.appendChild(content);
             messages.appendChild(item);
-            // Очищаем поля ввода
-            messageInput.value = '';
+
+            scrollToBottom(); // Прокрутка вниз
+
+            messageInput.value = ''; // Очищаем поле ввода
         }
     </script>
 
