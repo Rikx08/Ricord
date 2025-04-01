@@ -131,6 +131,7 @@ body {
     width: 32px;
     height: 32px;
     border-radius: 10%;
+    margin-right:5px;
 }
 
 .user-info .username {
@@ -335,6 +336,7 @@ input {
     border: none;
 }
 button {
+    display:flex;
     margin-left: 10px;
     padding: 8px 12px;
     border: none;
@@ -342,7 +344,9 @@ button {
     color: white;
     border-radius: 5px;
     cursor: pointer;
+    align-items: center;
 }
+
 .line {
   height: 2px; /* Толщина полоски */
   background-color: #000; /* Цвет полоски */
