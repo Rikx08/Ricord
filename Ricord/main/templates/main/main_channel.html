@@ -66,6 +66,7 @@
             <header>Общий чат</header>
             <section class="messages" id="messages"></section>
             <div class="messageInput">
+                <input type="file" id="imageInput" accept="image/*"><br>
                 <input id="messageInput" placeholder="Введите сообщение" />
                 <button onclick="sendMessage()">Отправить</button>
             </div>
@@ -83,7 +84,7 @@
     <script>
         var socket = io('http://localhost:5000', {
     extraHeaders: {
-        "User-Id": {{ user.id }}
+        "user_id": {{ user.id }}
         }
     });
         function scrollToBottom() {
@@ -93,89 +94,116 @@
         });
     }
         // Обработчик нового сообщения от сервера
-        socket.on('message', function (data) {
-            var messages = document.getElementById('messages');
-            var item = document.createElement('div');
-            item.classList.add('message');
+       socket.on('message', function (data) {
+        var messages = document.getElementById('messages');
+        var item = document.createElement('div');
+        item.classList.add('message');
 
-            // Создаем аватар (можно заменить путь)
-            var avatar = document.createElement('img');
-            avatar.src = "{% static 'media/avatars/default.jpg' %}";
-            avatar.classList.add('avatar');
+        // Создаем аватар
+        var avatar = document.createElement('img');
+        avatar.src = "{% static 'media/avatars/default.jpg' %}";
+        avatar.classList.add('avatar');
 
-            // Создаем контейнер для текста
-            var content = document.createElement('div');
-            content.classList.add('content');
+        // Создаем контейнер для текста
+        var content = document.createElement('div');
+        content.classList.add('content');
 
-            // Имя пользователя
-            var username = document.createElement('div');
-            username.classList.add('username');
-            username.textContent = data.split(":")[0];
+        // Имя пользователя
+        var username = document.createElement('div');
+        username.classList.add('username');
+        username.textContent = data.user;
 
-            // Текст сообщения
-            var text = document.createElement('div');
-            text.classList.add('text');
-            text.textContent = data.split(":")[1];
+        // Текст сообщения
+        var text = document.createElement('div');
+        text.classList.add('text');
+        text.textContent = data.message;
 
-            content.appendChild(username);
-            content.appendChild(text);
+        content.appendChild(username);
+        content.appendChild(text);
 
-            item.appendChild(avatar);
-            item.appendChild(content);
-            messages.appendChild(item);
-
-            scrollToBottom();
-        });
-
-        // Функция отправки сообщения
-        function sendMessage() {
-            var messageInput = document.getElementById('messageInput');
-            var message = messageInput.value.trim(); // Убираем пробелы в начале и конце
-
-            if (message === "") return; // Проверка на пустое сообщение
-
-            socket.emit('message', message);
-
-            var messages = document.getElementById('messages');
-            var item = document.createElement('div');
-            item.classList.add('message', 'self-message'); // Добавляем класс для своих сообщений
-
-            // Создаем аватар (можно заменить на реальный путь)
-            var avatar = document.createElement('img');
-            avatar.src = "{% static 'media/avatars/default.jpg' %}";
-            avatar.classList.add('avatar');
-
-            // Создаем контейнер для текста
-            var content = document.createElement('div');
-            content.classList.add('content');
-
-            // Имя пользователя
-            var username = document.createElement('div');
-            username.classList.add('username');
-            username.textContent = "Вы";
-
-            // Текст сообщения
-            var text = document.createElement('div');
-            text.classList.add('text');
-            text.textContent = message;
-
-            content.appendChild(username);
-            content.appendChild(text);
-
-            item.appendChild(avatar);
-            item.appendChild(content);
-            messages.appendChild(item);
-
-            scrollToBottom(); // Прокрутка вниз
-
-            messageInput.value = ''; // Очищаем поле ввода
+        // Обработка изображений
+        if (data.image) {
+            console.log("Image source: ", data.image);
+            var image = document.createElement('img');
+            console.log("Image source: ", data.image); // Логируем путь картинки
+            image.src = data.image; // Это будет путь вроде /media/chat_images/filename.jpg
+            image.classList.add('message-image');
+            content.appendChild(image);
         }
+
+        item.appendChild(avatar);
+        item.appendChild(content);
+        messages.appendChild(item);
+
+        scrollToBottom();
+    });
+
+    // Функция отправки сообщения
+    function sendMessage() {
+        var messageInput = document.getElementById('messageInput');
+        var imageInput = document.getElementById('imageInput');
+
+        var message = messageInput.value.trim();
+        var file = imageInput.files[0];
+
+        if (message === "" && !file) return;
+
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var imageBase64 = e.target.result;
+                socket.emit('message', {
+                    message: message,
+                    image: imageBase64
+                });
+            };
+            reader.readAsDataURL(file);
+            } else {
+                socket.emit('message', {
+                    message: message,
+                    image: null
+                });
+            }
+
+        // Отображение собственного сообщения
+
+        var item = document.createElement('div');
+        item.classList.add('message', 'self-message');
+
+        var avatar = document.createElement('img');
+        avatar.src = "{% static 'media/avatars/default.jpg' %}";
+        avatar.classList.add('avatar');
+
+        var content = document.createElement('div');
+        content.classList.add('content');
+
+        var username = document.createElement('div');
+        username.classList.add('username');
+        username.textContent = "Вы";
+
+        var text = document.createElement('div');
+        text.classList.add('text');
+        text.textContent = message;
+
+        content.appendChild(username);
+        content.appendChild(text);
+
+        item.appendChild(avatar);
+        item.appendChild(content);
+        messages.appendChild(item);
+
+        scrollToBottom();
+        messageInput.value = '';
+        imageInput.value = ''; // очищаем выбранное изображение
+    }
         document.getElementById('messageInput').addEventListener('keydown', function(event) {
             if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault();
                 sendMessage();
             }
         });
+
+
     </script>
 
 </body>
