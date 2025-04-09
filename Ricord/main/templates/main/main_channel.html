@@ -66,9 +66,13 @@
             <header>Общий чат</header>
             <section class="messages" id="messages"></section>
             <div class="messageInput">
-                <input type="file" id="imageInput" accept="image/*"><br>
-                <input id="messageInput" placeholder="Введите сообщение" />
-                <button onclick="sendMessage()">Отправить</button>
+                <div id="imagePreviewContainer" class="image-preview-container"></div>
+                <div class="input-row">
+                    <label for="imageInput" class="attach-button" title="Прикрепить изображение">🖇️</label>
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                    <input type="text" id="messageInput" placeholder="Введите сообщение..." />
+                    <button onclick="sendMessage()">Отправить</button>
+                </div>
             </div>
         </main>
         <aside class="users">
@@ -88,11 +92,53 @@
         }
     });
         function scrollToBottom() {
-        var messages = document.getElementById('messages');
-        requestAnimationFrame(() => {
-            messages.scrollTop = messages.scrollHeight;
-        });
-    }
+            const messages = document.getElementById('messages');
+
+            // Ждём окончания загрузки изображений
+            const images = messages.querySelectorAll('img');
+            if (images.length === 0) {
+                messages.scrollTop = messages.scrollHeight;
+            } else {
+                let loaded = 0;
+                images.forEach(img => {
+                    if (img.complete) {
+                        loaded++;
+                    } else {
+                        img.onload = img.onerror = () => {
+                            loaded++;
+                            if (loaded === images.length) {
+                                messages.scrollTop = messages.scrollHeight;
+                            }
+                        };
+                    }
+                });
+                if (loaded === images.length) {
+                    messages.scrollTop = messages.scrollHeight;
+                }
+            }};
+
+
+
+
+        let previewImageDataUrl = null;
+
+        // Показывает превью изображения
+        function showImagePreview(dataUrl) {
+            previewImageDataUrl = dataUrl;
+            const container = document.getElementById('imagePreviewContainer');
+            container.innerHTML = `
+                <div style="position: relative;">
+                    <img src="${dataUrl}" style="max-width: 150px; max-height: 150px; border: 1px solid #ccc; border-radius: 6px;">
+                    <button onclick="removeImagePreview()">×</button>
+                </div>
+            `;
+        }
+
+        function removeImagePreview() {
+            previewImageDataUrl = null;
+            document.getElementById('imageInput').value = '';
+            document.getElementById('imagePreviewContainer').innerHTML = '';
+        }
         // Обработчик нового сообщения от сервера
        socket.on('message', function (data) {
         var messages = document.getElementById('messages');
@@ -193,6 +239,7 @@
                 scrollToBottom();
                 messageInput.value = '';
                 imageInput.value = '';
+                removeImagePreview();
             };
             reader.readAsDataURL(file);
         } else {
@@ -230,8 +277,36 @@
             scrollToBottom();
             messageInput.value = '';
             imageInput.value = '';
+            removeImagePreview();
         }
     }
+         // Обработка выбора изображения
+        document.getElementById('imageInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                showImagePreview(e.target.result);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Обработка вставки Ctrl+V скриншота
+        document.getElementById('messageInput').addEventListener('paste', function (e) {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (const item of items) {
+                if (item.type.indexOf("image") === 0) {
+                    const file = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        showImagePreview(event.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
         document.getElementById('messageInput').addEventListener('keydown', function(event) {
             if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault();
