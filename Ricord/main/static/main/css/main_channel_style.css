@@ -381,7 +381,11 @@ header button {
     border-radius: 5px;
     cursor: pointer;
 }
-
+.message-image {
+    max-width: 300px;
+    margin-top: 10px;
+    border-radius: 8px;
+}
 .messageInput button:hover {
     background-color: #4752c4;
 }

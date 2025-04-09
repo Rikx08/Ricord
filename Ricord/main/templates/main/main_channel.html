@@ -152,49 +152,85 @@
             var reader = new FileReader();
             reader.onload = function(e) {
                 var imageBase64 = e.target.result;
+
+                // Отправка серверу
                 socket.emit('message', {
                     message: message,
                     image: imageBase64
                 });
+
+                // Отображение сообщения сразу с изображением
+                var item = document.createElement('div');
+                item.classList.add('message', 'self-message');
+
+                var avatar = document.createElement('img');
+                avatar.src = "{% static 'media/avatars/default.jpg' %}";
+                avatar.classList.add('avatar');
+
+                var content = document.createElement('div');
+                content.classList.add('content');
+
+                var username = document.createElement('div');
+                username.classList.add('username');
+                username.textContent = "Вы";
+
+                var text = document.createElement('div');
+                text.classList.add('text');
+                text.textContent = message;
+
+                content.appendChild(username);
+                content.appendChild(text);
+
+                var image = document.createElement('img');
+                image.src = imageBase64;
+                image.classList.add('message-image');
+                content.appendChild(image);
+
+                item.appendChild(avatar);
+                item.appendChild(content);
+                messages.appendChild(item);
+
+                scrollToBottom();
+                messageInput.value = '';
+                imageInput.value = '';
             };
             reader.readAsDataURL(file);
-            } else {
-                socket.emit('message', {
-                    message: message,
-                    image: null
-                });
-            }
+        } else {
+            socket.emit('message', {
+                message: message,
+                image: null
+            });
 
-        // Отображение собственного сообщения
+            // Отображение текстового сообщения без изображения
+            var item = document.createElement('div');
+            item.classList.add('message', 'self-message');
 
-        var item = document.createElement('div');
-        item.classList.add('message', 'self-message');
+            var avatar = document.createElement('img');
+            avatar.src = "{% static 'media/avatars/default.jpg' %}";
+            avatar.classList.add('avatar');
 
-        var avatar = document.createElement('img');
-        avatar.src = "{% static 'media/avatars/default.jpg' %}";
-        avatar.classList.add('avatar');
+            var content = document.createElement('div');
+            content.classList.add('content');
 
-        var content = document.createElement('div');
-        content.classList.add('content');
+            var username = document.createElement('div');
+            username.classList.add('username');
+            username.textContent = "Вы";
 
-        var username = document.createElement('div');
-        username.classList.add('username');
-        username.textContent = "Вы";
+            var text = document.createElement('div');
+            text.classList.add('text');
+            text.textContent = message;
 
-        var text = document.createElement('div');
-        text.classList.add('text');
-        text.textContent = message;
+            content.appendChild(username);
+            content.appendChild(text);
 
-        content.appendChild(username);
-        content.appendChild(text);
+            item.appendChild(avatar);
+            item.appendChild(content);
+            messages.appendChild(item);
 
-        item.appendChild(avatar);
-        item.appendChild(content);
-        messages.appendChild(item);
-
-        scrollToBottom();
-        messageInput.value = '';
-        imageInput.value = ''; // очищаем выбранное изображение
+            scrollToBottom();
+            messageInput.value = '';
+            imageInput.value = '';
+        }
     }
         document.getElementById('messageInput').addEventListener('keydown', function(event) {
             if (event.key === "Enter" && !event.shiftKey) {
