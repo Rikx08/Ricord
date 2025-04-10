@@ -25,7 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),  # Подключаем маршруты аутентификации
     path('', lambda request: redirect('/account/login/')),  # Редирект на вход
-    path('main', include('main.urls'), name="home"),
+    path('main/', include('main.urls'), name="home"),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

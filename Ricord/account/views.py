@@ -5,6 +5,7 @@ from django.urls import reverse
 
 from .forms import RegisterForm
 
+
 def register_view(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
@@ -16,6 +17,7 @@ def register_view(request):
         form = RegisterForm()
     return render(request, 'account/register.html', {'form': form})
 
+
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
@@ -26,6 +28,7 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'account/login.html', {'form': form})
+
 
 def logout_view(request):
     logout(request)

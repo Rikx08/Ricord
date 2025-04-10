@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="{% static 'main/css/main_channel_style.css' %}" >
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js"></script>
 </head>
+    <!-- Модалка для увеличенного изображения -->
+    <div id="img-modal" class="modal" style="display: none;">
+      <span class="close">&times;</span>
+      <img class="modal-content" id="img-modal-content">
+    </div>
 <body>
     <div class="container">
         <aside class="servers">
@@ -86,6 +91,20 @@
     </div>
 
     <script>
+        // Функция обработки клика по изображениям в сообщениях
+        document.addEventListener("click", function (event) {
+            if (event.target.classList.contains("message-image")) {
+                const modal = document.getElementById("img-modal");
+                const modalImg = document.getElementById("img-modal-content");
+                modal.style.display = "block";
+                modalImg.src = event.target.src;
+            }
+        });
+
+        // Закрытие модалки по кнопке
+        document.querySelector(".close").addEventListener("click", function () {
+            document.getElementById("img-modal").style.display = "none";
+        });
         var socket = io('http://localhost:5000', {
     extraHeaders: {
         "user_id": {{ user.id }}
@@ -129,7 +148,7 @@
             container.innerHTML = `
                 <div style="position: relative;">
                     <img src="${dataUrl}" style="max-width: 150px; max-height: 150px; border: 1px solid #ccc; border-radius: 6px;">
-                    <button onclick="removeImagePreview()">×</button>
+                    <button onclick="removeImagePreview()">❌</button>
                 </div>
             `;
         }
@@ -306,15 +325,22 @@
                 }
             }
         });
-
+        // обработка отправки на enter
         document.getElementById('messageInput').addEventListener('keydown', function(event) {
             if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault();
                 sendMessage();
             }
         });
-
-
+        // обработка закрытия картинки на Esc
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                const modal = document.getElementById("img-modal");
+                if (modal && modal.style.display === "block") {
+                    modal.style.display = "none";
+                }
+            }
+        });
     </script>
 
 </body>

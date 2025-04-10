@@ -318,8 +318,6 @@ header button {
 
 /* Имя пользователя */
 .username {
-    font-weight: bold;
-    color: #ffffff;
     margin-bottom: 2px;
 }
 
@@ -375,17 +373,61 @@ header button {
     border: 1px solid #555;
     border-radius: 8px;
 }
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.9);
+}
 
+.modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 5px;
+
+}
+
+.close {
+    position: absolute;
+    top: 30px;
+    right: 40px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.message-image {
+    cursor: pointer;
+    max-width: 200px;
+    max-height: 200px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.message-image:hover {
+    opacity: 0.85;
+}
 .image-preview-container button {
     position: absolute;
     top: -6px;
     right: -6px;
-    background: red;
+    background: none;
     color: white;
     border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    border-radius: 0%;
+    width: 28px;
+    height: 0px;
     cursor: pointer;
     font-weight: bold;
 }

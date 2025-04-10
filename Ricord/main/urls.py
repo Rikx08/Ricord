@@ -8,5 +8,6 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path("profile/", views.profile, name="profile"),
     path("channel/", views.channel, name="channel"),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('search-users/', views.search_users, name='search_users'),
+]
 

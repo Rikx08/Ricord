@@ -76,25 +76,39 @@
         </aside>
         <main class="content">
             <header>
-                <input type="text" placeholder="Найти или начать беседу">
-                <button>Добавить в друзья</button>
+                <input id="search-input" type="text" placeholder="Найти пользователя...">
             </header>
-            <section class="friends-list">
-                <div class="friend online"><img src="avatar1.jpg" alt=""> emod3vochka</div>
-                <div class="friend offline"><img src="avatar2.jpg" alt=""> K_ofe</div>
-                <div class="friend online"><img src="avatar3.jpg" alt=""> Sokolova</div>
-                <div class="friend online"><img src="avatar4.jpg" alt=""> Стас Шишов</div>
-            </section>
+            <section id="search-results" class="friends-list"></section>
 
         </main>
     </div>
     <script>
-        document.querySelector("input").addEventListener("input", function() {
-            let filter = this.value.toLowerCase();
-            document.querySelectorAll(".friend").forEach(friend => {
-                friend.style.display = friend.textContent.toLowerCase().includes(filter) ? "block" : "none";
+        document.getElementById("search-input").addEventListener("input", function() {
+    let query = this.value;
+
+    fetch(`/main/search-users/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById("search-results");
+            container.innerHTML = "";
+
+            data.users.forEach(user => {
+                const div = document.createElement("div");
+                div.className = "friend online";
+                div.innerHTML = `
+                <div class="friend-inner">
+                    <div class="friend-info">
+                        <img src="/static/media/avatars/default.jpg" alt="">
+                        <span class="username">${user.username}</span>
+                    </div>
+                    <button class="add-friend">Добавить</button>
+                </div>
+            `;
+                container.appendChild(div);
             });
         });
+});
+
     </script>
 
     </div>
