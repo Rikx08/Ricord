@@ -1,0 +1,266 @@
+
+let currentRoom = 'common_room';
+
+document.querySelectorAll('aside.channels li').forEach(li => {
+  li.addEventListener('click', () => {
+    const newRoom = li.dataset.room;
+    if (newRoom !== currentRoom) {
+      socket.emit('join', newRoom);
+      currentRoom = newRoom;
+
+      // Очистить чат
+      document.getElementById('messages').innerHTML = '';
+
+      // Обновить заголовок
+      document.querySelector('main.chat header').textContent = li.textContent.trim();
+    }
+  });
+});
+
+// Функция обработки клика по изображениям в сообщениях
+document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("message-image")) {
+        const modal = document.getElementById("img-modal");
+        const modalImg = document.getElementById("img-modal-content");
+        modal.style.display = "block";
+        modalImg.src = event.target.src;
+    }
+});
+
+// Закрытие модалки по кнопке
+document.querySelector(".close").addEventListener("click", function () {
+    document.getElementById("img-modal").style.display = "none";
+});
+
+socket.emit('join', 'common_room');
+function scrollToBottom() {
+    const messages = document.getElementById('messages');
+
+    // Ждём окончания загрузки изображений
+    const images = messages.querySelectorAll('img');
+    if (images.length === 0) {
+        messages.scrollTop = messages.scrollHeight;
+    } else {
+        let loaded = 0;
+        images.forEach(img => {
+            if (img.complete) {
+                loaded++;
+            } else {
+                img.onload = img.onerror = () => {
+                    loaded++;
+                    if (loaded === images.length) {
+                        messages.scrollTop = messages.scrollHeight;
+                    }
+                };
+            }
+        });
+        if (loaded === images.length) {
+            messages.scrollTop = messages.scrollHeight;
+        }
+    }};
+
+
+
+
+let previewImageDataUrl = null;
+
+// Показывает превью изображения
+function showImagePreview(dataUrl) {
+    previewImageDataUrl = dataUrl;
+    const container = document.getElementById('imagePreviewContainer');
+    container.innerHTML = `
+        <div style="position: relative;">
+            <img src="${dataUrl}" style="max-width: 150px; max-height: 150px; border: 1px solid #ccc; border-radius: 6px;">
+            <button onclick="removeImagePreview()">❌</button>
+        </div>
+    `;
+}
+
+function removeImagePreview() {
+    previewImageDataUrl = null;
+    document.getElementById('imageInput').value = '';
+    document.getElementById('imagePreviewContainer').innerHTML = '';
+}
+// Обработчик нового сообщения от сервера
+socket.on('message', function (data) {
+var messages = document.getElementById('messages');
+var item = document.createElement('div');
+item.classList.add('message');
+
+// Создаем аватар
+var avatar = document.createElement('img');
+avatar.src = "static/media/avatars/default.jpg";
+avatar.classList.add('avatar');
+
+// Создаем контейнер для текста
+var content = document.createElement('div');
+content.classList.add('content');
+
+// Имя пользователя
+var username = document.createElement('div');
+username.classList.add('username');
+username.textContent = data.user;
+
+// Текст сообщения
+var text = document.createElement('div');
+text.classList.add('text');
+text.textContent = data.message;
+
+content.appendChild(username);
+content.appendChild(text);
+
+// Обработка изображений
+if (data.image) {
+    console.log("Image source: ", data.image);
+    var image = document.createElement('img');
+    console.log("Image source: ", data.image); // Логируем путь картинки
+    image.src = data.image; // Это будет путь вроде /media/chat_images/filename.jpg
+    image.classList.add('message-image');
+    content.appendChild(image);
+}
+
+item.appendChild(avatar);
+item.appendChild(content);
+messages.appendChild(item);
+
+scrollToBottom();
+});
+
+// Функция отправки сообщения
+function sendMessage() {
+var messageInput = document.getElementById('messageInput');
+var imageInput = document.getElementById('imageInput');
+
+var message = messageInput.value.trim();
+var file = imageInput.files[0];
+
+if (message === "" && !file) return;
+
+if (file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var imageBase64 = e.target.result;
+
+        // Отправка серверу
+        socket.emit('message', {
+            message: message,
+            image: imageBase64
+        });
+
+        // Отображение сообщения сразу с изображением
+        var item = document.createElement('div');
+        item.classList.add('message', 'self-message');
+
+        var avatar = document.createElement('img');
+        avatar.src = "static/media/avatars/default.jpg";
+        avatar.classList.add('avatar');
+
+        var content = document.createElement('div');
+        content.classList.add('content');
+
+        var username = document.createElement('div');
+        username.classList.add('username');
+        username.textContent = "Вы";
+
+        var text = document.createElement('div');
+        text.classList.add('text');
+        text.textContent = message;
+
+        content.appendChild(username);
+        content.appendChild(text);
+
+        var image = document.createElement('img');
+        image.src = imageBase64;
+        image.classList.add('message-image');
+        content.appendChild(image);
+
+        item.appendChild(avatar);
+        item.appendChild(content);
+        messages.appendChild(item);
+
+        scrollToBottom();
+        messageInput.value = '';
+        imageInput.value = '';
+        removeImagePreview();
+    };
+    reader.readAsDataURL(file);
+} else {
+    socket.emit('message', {
+        message: message,
+        image: null
+    });
+
+    // Отображение текстового сообщения без изображения
+    var item = document.createElement('div');
+    item.classList.add('message', 'self-message');
+
+    var avatar = document.createElement('img');
+    avatar.src = "static/media/avatars/default.jpg";
+    avatar.classList.add('avatar');
+
+    var content = document.createElement('div');
+    content.classList.add('content');
+
+    var username = document.createElement('div');
+    username.classList.add('username');
+    username.textContent = "Вы";
+
+    var text = document.createElement('div');
+    text.classList.add('text');
+    text.textContent = message;
+
+    content.appendChild(username);
+    content.appendChild(text);
+
+    item.appendChild(avatar);
+    item.appendChild(content);
+    messages.appendChild(item);
+
+    scrollToBottom();
+    messageInput.value = '';
+    imageInput.value = '';
+    removeImagePreview();
+}
+}
+ // Обработка выбора изображения
+document.getElementById('imageInput').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        showImagePreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
+});
+
+// Обработка вставки Ctrl+V скриншота
+document.getElementById('messageInput').addEventListener('paste', function (e) {
+    const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+    for (const item of items) {
+        if (item.type.indexOf("image") === 0) {
+            const file = item.getAsFile();
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                showImagePreview(event.target.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+});
+// обработка отправки на enter
+document.getElementById('messageInput').addEventListener('keydown', function(event) {
+    if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+    }
+});
+// обработка закрытия картинки на Esc
+document.addEventListener('keydown', function(event) {
+    if (event.key === "Escape") {
+        const modal = document.getElementById("img-modal");
+        if (modal && modal.style.display === "block") {
+            modal.style.display = "none";
+        }
+    }
+});

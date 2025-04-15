@@ -317,6 +317,7 @@ header {
     border-radius: 10px;
     margin: 10px;
 }
+
 header input {
     flex-grow: 1;
     padding: 8px;
