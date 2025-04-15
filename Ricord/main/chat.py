@@ -8,11 +8,7 @@ from datetime import datetime
 MEDIA_DIR = "../media/chat_images"
 os.makedirs(MEDIA_DIR, exist_ok=True)
 
-# # Подключение к базе данных сообщений
-# conn_messages = sqlite3.connect("messages.db", check_same_thread=False)
-# cursor_messages = conn_messages.cursor()
-# cursor_messages.execute("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY, user_id INTEGER, text TEXT)")
-# conn_messages.commit()
+user_rooms = {}
 
 # Подключение к основной базе данных пользователей (db.sqlite3)
 conn_messages = sqlite3.connect('../db.sqlite3', check_same_thread=False)
@@ -29,6 +25,32 @@ sio.attach(app)
 
 # Сопоставление sid и user_id
 user_sessions = {}
+
+
+@sio.event
+async def join(sid, room_name):
+    prev_room = user_rooms.get(sid)
+    if prev_room:
+        await sio.leave_room(sid, prev_room)
+
+    await sio.enter_room(sid, room_name)
+    user_rooms[sid] = room_name
+    print(f"User {sid} joined room: {room_name}")
+
+    # Отправка истории сообщений из этой комнаты
+    cursor_messages.execute("SELECT user_id, text, image FROM main_message WHERE room = ?", (room_name,))
+    messages = cursor_messages.fetchall()
+
+    for msg_user_id, text, image_path in messages:
+        cursor_messages.execute("SELECT username FROM auth_user WHERE id = ?", (msg_user_id,))
+        sender = cursor_messages.fetchone()
+        sender_name = sender[0] if sender else "Аноним"
+
+        await sio.emit('message', {
+            'user': sender_name,
+            'message': text,
+            'image': image_path if image_path else None
+        }, room=sid)
 
 
 async def static_handler(request):
@@ -86,30 +108,25 @@ async def message(sid, data):
     image = data.get('image')
 
     user_id = user_sessions.get(sid, 1)
+    room_name = user_rooms.get(sid, 'common_room')
 
-    # Получаем имя пользователя
     cursor_messages.execute("SELECT username FROM auth_user WHERE id = ?", (user_id,))
     user = cursor_messages.fetchone()
     username = user[0] if user else "Аноним"
 
-    if image:
-        image_path = save_image(image)
-    else:
-        image_path = None
+    image_path = save_image(image) if image else None
 
-    # Сохраняем в базу
     cursor_messages.execute(
-        "INSERT INTO main_message (user_id, text, image, timestamp) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-        (user_id, message_text, image_path)
+        "INSERT INTO main_message (user_id, text, image, room, timestamp) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
+        (user_id, message_text, image_path, room_name)
     )
     conn_messages.commit()
 
-    # Отправка другим пользователям
     await sio.emit('message', {
         'user': username,
         'message': message_text,
         'image': image_path,
-    }, room='common_room', skip_sid=sid)
+    }, room=room_name, skip_sid=sid)
 
 
 # Обработчик отключения клиента
@@ -133,6 +150,8 @@ def save_image(image_base64):
     except Exception as e:
         print(f"Ошибка сохранения изображения: {e}")
         return None
+
+
 
 
 # Запуск сервера

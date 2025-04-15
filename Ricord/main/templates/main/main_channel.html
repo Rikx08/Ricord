@@ -24,10 +24,10 @@
         <aside class="channels">
             <h2>Каналы</h2>
             <ul>
-                <li># общий</li>
-                <li># мемы</li>
-                <li># музыка</li>
-                <li># чатик</li>
+                <li data-room="common_room">общий</li>
+                <li data-room="memes"> щитпост</li>
+                <li data-room="music"> цитаты</li>
+                <li data-room="chat"> референдум</li>
             </ul>
         <div class="line"></div>
             <div class="friends-list-container">
@@ -91,6 +91,30 @@
     </div>
 
     <script>
+        var socket = io('http://localhost:5000', {
+            extraHeaders: {
+                "user_id": {{ user.id }}
+                }
+            });
+
+        let currentRoom = 'common_room';
+
+        document.querySelectorAll('aside.channels li').forEach(li => {
+          li.addEventListener('click', () => {
+            const newRoom = li.dataset.room;
+            if (newRoom !== currentRoom) {
+              socket.emit('join', newRoom);
+              currentRoom = newRoom;
+
+              // Очистить чат
+              document.getElementById('messages').innerHTML = '';
+
+              // Обновить заголовок
+              document.querySelector('main.chat header').textContent = li.textContent.trim();
+            }
+          });
+        });
+
         // Функция обработки клика по изображениям в сообщениях
         document.addEventListener("click", function (event) {
             if (event.target.classList.contains("message-image")) {
@@ -105,11 +129,8 @@
         document.querySelector(".close").addEventListener("click", function () {
             document.getElementById("img-modal").style.display = "none";
         });
-        var socket = io('http://localhost:5000', {
-    extraHeaders: {
-        "user_id": {{ user.id }}
-        }
-    });
+
+        socket.emit('join', 'common_room');
         function scrollToBottom() {
             const messages = document.getElementById('messages');
 
