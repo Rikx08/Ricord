@@ -147,7 +147,7 @@ body {
     gap: 4px;
 }
 
-.friends-list-container {
+.voice-channels {
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -158,16 +158,16 @@ body {
 }
 
 /* Настройки скроллбара для браузеров на основе WebKit */
-.friends-list-container::-webkit-scrollbar {
+.voice-channels::-webkit-scrollbar {
     width: 6px; /* Узкий скроллбар */
 }
 
-.friends-list-container::-webkit-scrollbar-thumb {
+.voice-channels::-webkit-scrollbar-thumb {
     background-color: #5865F2; /* Синий ползунок */
     border-radius: 3px;
 }
 
-.friends-list-container::-webkit-scrollbar-track {
+.voice-channels::-webkit-scrollbar-track {
     background: #2f3136; /* Темный фон */
 }
 
@@ -197,7 +197,7 @@ body {
     color: #747f8d;
 }
 
-.friends-list {
+.voice-channels-list {
     display: flex;
     flex-direction: column;
 }
@@ -252,6 +252,7 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
+    justify-content: space-between
     background-color: #36393f;
 }
 header {
@@ -544,7 +545,6 @@ button {
     cursor: pointer;
     align-items: center;
 }
-
 
 /* Стили для самого скролл-бара */
 .messages::-webkit-scrollbar {

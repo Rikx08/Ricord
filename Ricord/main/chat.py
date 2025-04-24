@@ -4,12 +4,7 @@ import sqlite3
 import os
 import base64
 from datetime import datetime
-
-MEDIA_DIR = "../media/chat_images"
-os.makedirs(MEDIA_DIR, exist_ok=True)
-
-user_rooms = {}
-
+from threading import Lock
 # Подключение к основной базе данных пользователей (db.sqlite3)
 conn_messages = sqlite3.connect('../db.sqlite3', check_same_thread=False)
 cursor_messages = conn_messages.cursor()
@@ -25,6 +20,18 @@ sio.attach(app)
 
 # Сопоставление sid и user_id
 user_sessions = {}
+user_rooms = {}
+
+
+# Глобальная блокировка для доступа к базе данных
+db_lock = Lock()
+
+
+def safe_db_execute(query, params=()):
+    with db_lock:
+        cursor_messages.execute(query, params)
+        conn_messages.commit()
+        return cursor_messages.fetchall()
 
 
 @sio.event
@@ -38,37 +45,30 @@ async def join(sid, room_name):
     print(f"User {sid} joined room: {room_name}")
 
     # Отправка истории сообщений из этой комнаты
-    cursor_messages.execute("SELECT user_id, text, image FROM main_message WHERE room = ?", (room_name,))
+    cursor_messages.execute("SELECT user_id, text, image, image_type FROM main_message WHERE room = ?", (room_name,))
     messages = cursor_messages.fetchall()
 
-    for msg_user_id, text, image_path in messages:
+    for msg_user_id, text, image_data, image_type in messages:
         cursor_messages.execute("SELECT username FROM auth_user WHERE id = ?", (msg_user_id,))
         sender = cursor_messages.fetchone()
         sender_name = sender[0] if sender else "Аноним"
 
+        # Если есть изображение - создаем data URL
+        image_url = None
+        if image_data and image_type:
+            image_base64 = base64.b64encode(image_data).decode('utf-8')
+            image_url = f"data:{image_type};base64,{image_base64}"
+
         await sio.emit('message', {
             'user': sender_name,
             'message': text,
-            'image': image_path if image_path else None
+            'image': image_url
         }, room=sid)
-
-
-async def static_handler(request):
-    path = request.match_info.get('path', '')
-    file_path = os.path.join(MEDIA_DIR, path)
-    if os.path.exists(file_path):
-        return web.FileResponse(file_path)
-    return web.Response(status=404)
-
-# Добавление маршрута для статичных файлов
-app.router.add_get('/media/chat_images/{path:.*}', static_handler)
-# Обработчик подключения нового клиента
 
 
 @sio.event
 async def connect(sid, environ):
     print(f'Клиент {sid} подключен')
-
     user_id = environ.get("HTTP_USER_ID")
     if not user_id:
         user_id = 0  # по умолчанию первый пользователь
@@ -105,7 +105,7 @@ async def message(sid, data):
     print(f'Получено сообщение от {sid}: {data}')
 
     message_text = data.get('message', '').strip()
-    image = data.get('image')
+    image_data_url = data.get('image')
 
     user_id = user_sessions.get(sid, 1)
     room_name = user_rooms.get(sid, 'common_room')
@@ -114,45 +114,58 @@ async def message(sid, data):
     user = cursor_messages.fetchone()
     username = user[0] if user else "Аноним"
 
-    image_path = save_image(image) if image else None
+    # Обработка изображения
+    image_binary = None
+    image_type = None
 
-    cursor_messages.execute(
-        "INSERT INTO main_message (user_id, text, image, room, timestamp) VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
-        (user_id, message_text, image_path, room_name)
-    )
-    conn_messages.commit()
+    if image_data_url:
+        try:
+            # Разделяем data URL на части
+            if isinstance(image_data_url, str) and image_data_url.startswith('data:image'):
+                header, encoded = image_data_url.split(",", 1)
+                image_type = header.split(':')[1].split(';')[0]
 
+                # Декодируем base64 в бинарные данные
+                image_binary = base64.b64decode(encoded)
+            else:
+                # Если пришло что-то неожиданное
+                print(f"Unexpected image format: {type(image_data_url)}")
+                image_binary = None
+        except Exception as e:
+            print(f"Ошибка обработки изображения: {e}")
+            image_binary = None
+
+    # Сохраняем сообщение в базу данных
+    try:
+        if image_binary is not None:
+            cursor_messages.execute(
+                "INSERT INTO main_message (user_id, text, image, image_type, room, timestamp) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+                (user_id, message_text, image_binary, image_type, room_name)
+            )
+        else:
+            cursor_messages.execute(
+                "INSERT INTO main_message (user_id, text, room, timestamp) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
+                (user_id, message_text, room_name)
+            )
+        conn_messages.commit()
+    except Exception as e:
+        print(f"Ошибка сохранения сообщения: {e}")
+        conn_messages.rollback()
+
+    # Отправляем сообщение всем в комнате (кроме отправителя)
     await sio.emit('message', {
         'user': username,
         'message': message_text,
-        'image': image_path,
+        'image': image_data_url  # Отправляем оригинальный data URL
     }, room=room_name, skip_sid=sid)
 
 
-# Обработчик отключения клиента
 @sio.event
 async def disconnect(sid):
     print(f'Клиент {sid} отключен')
     user_sessions.pop(sid, None)
+    user_rooms.pop(sid, None)
     await sio.leave_room(sid, 'common_room')
-
-
-def save_image(image_base64):
-    try:
-        header, encoded = image_base64.split(",", 1)
-        file_ext = header.split('/')[1].split(';')[0]
-        image_data = base64.b64decode(encoded)
-        filename = f"{datetime.now().strftime('%Y%m%d%H%M%S%f')}.{file_ext}"
-        file_path = os.path.join(MEDIA_DIR, filename)
-        with open(file_path, "wb") as f:
-            f.write(image_data)
-        return f"/media/chat_images/{filename}"  # относительный путь для HTML
-    except Exception as e:
-        print(f"Ошибка сохранения изображения: {e}")
-        return None
-
-
-
 
 # Запуск сервера
 if __name__ == '__main__':
