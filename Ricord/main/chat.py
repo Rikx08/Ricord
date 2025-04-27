@@ -9,13 +9,14 @@ from threading import Lock
 conn_messages = sqlite3.connect('../db.sqlite3', check_same_thread=False)
 cursor_messages = conn_messages.cursor()
 
+
 # Укажи правильное название таблицы, в которой хранятся пользователи
 USER_TABLE = "auth_user"  # Измени на реальное название
 USER_COLUMN = "username"
 
 # Создаем объект сервера
 sio = socketio.AsyncServer(cors_allowed_origins="*")
-app = web.Application()
+app = web.Application(client_max_size=100*1024**2)  # 100MB
 sio.attach(app)
 
 # Сопоставление sid и user_id
@@ -29,9 +30,10 @@ db_lock = Lock()
 
 def safe_db_execute(query, params=()):
     with db_lock:
-        cursor_messages.execute(query, params)
+        cursor = conn_messages.cursor()
+        cursor.execute(query, params)
         conn_messages.commit()
-        return cursor_messages.fetchall()
+        return cursor.fetchall()
 
 
 @sio.event
@@ -81,23 +83,23 @@ async def connect(sid, environ):
     username = user[0] if user else "Аноним"
 
     # Отправляем пользователю историю сообщений
-    cursor_messages.execute("SELECT user_id, text, image FROM main_message")
+    cursor_messages.execute("SELECT user_id, text, image, image_type FROM main_message")
     messages = cursor_messages.fetchall()
-    for msg_user_id, text, image_path in messages:
+    for msg_user_id, text, image_path, image_type in messages:
         cursor_messages.execute("SELECT username FROM auth_user WHERE id = ?", (msg_user_id,))
         sender = cursor_messages.fetchone()
         sender_name = sender[0] if sender else "Аноним"
 
-        # Если изображение сохранено — формируем URL (или None)
-        image_url = image_path if image_path else None
-
+        image_url = None
+        if image_path and image_type:
+            image_base64 = base64.b64encode(image_path).decode('utf-8')
+            image_url = f"data:{image_type};base64,{image_base64}"
+        print(f"Image type: {image_type}")
         await sio.emit('message', {
             'user': sender_name,
             'message': text,
             'image': image_url
         }, room=sid)
-
-    await sio.enter_room(sid, 'common_room')
 
 
 @sio.event
@@ -139,12 +141,14 @@ async def message(sid, data):
     try:
         if image_binary is not None:
             cursor_messages.execute(
-                "INSERT INTO main_message (user_id, text, image, image_type, room, timestamp) VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
+                "INSERT INTO main_message (user_id, text, image, image_type, room, timestamp) "
+                "VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)",
                 (user_id, message_text, image_binary, image_type, room_name)
             )
         else:
             cursor_messages.execute(
-                "INSERT INTO main_message (user_id, text, room, timestamp) VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
+                "INSERT INTO main_message (user_id, text, room, timestamp) "
+                "VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
                 (user_id, message_text, room_name)
             )
         conn_messages.commit()

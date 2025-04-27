@@ -93,7 +93,7 @@
     </div>
 
     <script>
-        console.log("User ID:", "{{ user.id }}");
+
     var socket = io('http://localhost:5000', {
         extraHeaders: {
             "user_id": {{ user.id }}
@@ -215,7 +215,7 @@
             console.log("Image source: ", data.image);
             var image = document.createElement('img');
             console.log("Image source: ", data.image); // Логируем путь картинки
-            image.src = data.image; // Это будет путь вроде /media/chat_images/filename.jpg
+            image.src = data.image; 
             image.classList.add('message-image');
             content.appendChild(image);
         }
