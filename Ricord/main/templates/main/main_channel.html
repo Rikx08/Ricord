@@ -34,9 +34,9 @@
         <div class="line"></div>
             <div class="voice-channels">
                     <section class="voice-channels-list">
-                        <div class="friend online" data-room="voice_channel_1"> Основной</div>
-                        <div class="friend offline" data-room="voice_channel_2"> класика 100</div>
-                        <div class="friend online" data-room="voice_channel_3"> посиделки</div>
+                        <div class="friend online" id="voice-channel-basic" data-room="voice_channel_1"> Основной</div>
+                        <div class="friend offline" id="voice-channel-classic" data-room="voice_channel_2"> класика 100</div>
+                        <div class="friend online" id="voice-channel-gatherings" data-room="voice_channel_3"> посиделки</div>
                     </section>
                 </div>
             <div class="nav_niz">
@@ -386,6 +386,93 @@
             }
         });
 
+
+
+    // голосовой канал↓
+
+    document.getElementById('voice-channel-basic').addEventListener('click', () => {
+        joinVoiceRoom('main_voice_channel');
+    });
+
+    let localStream;
+    let peerConnections = {};
+
+    async function getMicrophoneStream() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (err) {
+            console.error('Ошибка доступа к микрофону:', err);
+        }
+    }
+
+    async function joinVoiceRoom(roomName) {
+        await getMicrophoneStream();
+        socket.emit('join_voice_room', roomName);
+    }
+
+    // Когда кто-то новый присоединяется
+    socket.on('user_joined', async ({ userId }) => {
+        const pc = new RTCPeerConnection();
+        peerConnections[userId] = pc;
+
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                socket.emit('ice_candidate', { to: userId, candidate: event.candidate });
+            }
+        };
+
+        pc.ontrack = (event) => {
+            const audio = document.createElement('audio');
+            audio.srcObject = event.streams[0];
+            audio.autoplay = true;
+            document.body.appendChild(audio);
+        };
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        socket.emit('offer', { to: userId, offer });
+    });
+
+    socket.on('offer', async ({ from, offer }) => {
+        const pc = new RTCPeerConnection();
+        peerConnections[from] = pc;
+
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                socket.emit('ice_candidate', { to: from, candidate: event.candidate });
+            }
+        };
+
+        pc.ontrack = (event) => {
+            const audio = document.createElement('audio');
+            audio.srcObject = event.streams[0];
+            audio.autoplay = true;
+            document.body.appendChild(audio);
+        };
+
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        socket.emit('answer', { to: from, answer });
+    });
+
+    socket.on('answer', async ({ from, answer }) => {
+        const pc = peerConnections[from];
+        if (pc) {
+            await pc.setRemoteDescription(new RTCSessionDescription(answer));
+        }
+    });
+
+    socket.on('ice_candidate', ({ from, candidate }) => {
+        const pc = peerConnections[from];
+        if (pc && candidate) {
+            pc.addIceCandidate(new RTCIceCandidate(candidate));
+        }
+    });
     </script>
 
 </body>

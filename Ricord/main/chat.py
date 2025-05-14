@@ -171,6 +171,26 @@ async def disconnect(sid):
     user_rooms.pop(sid, None)
     await sio.leave_room(sid, 'common_room')
 
+
+@sio.event
+async def join_voice_room(sid, room_name):
+    await sio.enter_room(sid, room_name)
+    for other_sid in sio.manager.rooms['/'].get(room_name, set()):
+        if other_sid != sid:
+            await sio.emit('user_joined', {'userId': sid}, room=other_sid)
+
+@sio.event
+async def offer(sid, data):
+    await sio.emit('offer', {'from': sid, 'offer': data['offer']}, room=data['to'])
+
+@sio.event
+async def answer(sid, data):
+    await sio.emit('answer', {'from': sid, 'answer': data['answer']}, room=data['to'])
+
+@sio.event
+async def ice_candidate(sid, data):
+    await sio.emit('ice_candidate', {'from': sid, 'candidate': data['candidate']}, room=data['to'])
+
 # Запуск сервера
 if __name__ == '__main__':
     web.run_app(app, port=5000)

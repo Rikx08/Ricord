@@ -90,7 +90,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Ricord.wsgi.application'
 ASGI_APPLICATION = 'Ricord.asgi.application'
 
-CHAT_SERVER = "http://127.0.0.1:5000"
 
 CHANNEL_LAYERS = {
     "default": {
