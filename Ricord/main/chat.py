@@ -167,10 +167,17 @@ async def message(sid, data):
 @sio.event
 async def disconnect(sid):
     print(f'Клиент {sid} отключен')
+
+    # Уведомляем голосовую комнату, если есть
+    room_name = user_rooms.get(sid)
+    if room_name:
+        await sio.leave_room(sid, room_name)
+        for other_sid in sio.manager.rooms['/'].get(room_name, set()):
+            if other_sid != sid:
+                await sio.emit('user_left', {'userId': sid}, room=other_sid)
+
     user_sessions.pop(sid, None)
     user_rooms.pop(sid, None)
-    await sio.leave_room(sid, 'common_room')
-
 
 @sio.event
 async def join_voice_room(sid, room_name):
@@ -178,6 +185,16 @@ async def join_voice_room(sid, room_name):
     for other_sid in sio.manager.rooms['/'].get(room_name, set()):
         if other_sid != sid:
             await sio.emit('user_joined', {'userId': sid}, room=other_sid)
+
+@sio.event
+async def leave_voice_room(sid, room_name):
+    await sio.leave_room(sid, room_name)
+    print(f"User {sid} left voice room: {room_name}")
+
+    # Уведомляем остальных участников комнаты
+    for other_sid in sio.manager.rooms['/'].get(room_name, set()):
+        if other_sid != sid:
+            await sio.emit('user_left', {'userId': sid}, room=other_sid)
 
 @sio.event
 async def offer(sid, data):

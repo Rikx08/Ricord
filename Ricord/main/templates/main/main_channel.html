@@ -391,11 +391,21 @@
     // голосовой канал↓
 
     document.getElementById('voice-channel-basic').addEventListener('click', () => {
-        joinVoiceRoom('main_voice_channel');
+         toggleVoiceRoom('main_voice_channel');
     });
 
     let localStream;
     let peerConnections = {};
+    let inVoiceRoom = false;
+    let currentVoiceRoom = null;
+
+    async function toggleVoiceRoom(roomName) {
+        if (inVoiceRoom && currentVoiceRoom === roomName) {
+            leaveVoiceRoom();
+        } else {
+            await joinVoiceRoom(roomName);
+        }
+    }
 
     async function getMicrophoneStream() {
         try {
@@ -408,7 +418,31 @@
     async function joinVoiceRoom(roomName) {
         await getMicrophoneStream();
         socket.emit('join_voice_room', roomName);
+        currentVoiceRoom = roomName;
+        inVoiceRoom = true;
     }
+
+    function leaveVoiceRoom() {
+        socket.emit('leave_voice_room', currentVoiceRoom);
+
+        // Закрываем все PeerConnection
+        for (const userId in peerConnections) {
+            peerConnections[userId].close();
+            delete peerConnections[userId];
+        }
+
+        // Останавливаем аудиопоток
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+        }
+
+        // Удаляем все теги <audio>
+        document.querySelectorAll('audio').forEach(audio => audio.remove());
+
+        currentVoiceRoom = null;
+        inVoiceRoom = false;
+}
 
     // Когда кто-то новый присоединяется
     socket.on('user_joined', async ({ userId }) => {
