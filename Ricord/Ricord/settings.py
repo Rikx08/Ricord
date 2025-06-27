@@ -28,8 +28,10 @@ SECRET_KEY = 'django-insecure-lz(29vt!!ponod-96_^qnqth1ke5c)!yi!-*4%b31_2d4(p227
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    'localhost',       # Локальный доступ
+    '127.0.0.1',       # Локальный доступ
+]
 
 # Application definition
 
@@ -106,8 +108,6 @@ DATABASES = {
     }
 }
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -157,7 +157,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URl = reverse_lazy("main: profile")
+
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
